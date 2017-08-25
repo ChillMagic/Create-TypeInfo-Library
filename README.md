@@ -17,7 +17,7 @@ int64_t int64 as md % cmp cov
 
 ### Output:
 
-```
+```c
 #include <stdint.h>
 #include <stdbool.h>
 typedef long int lint;
