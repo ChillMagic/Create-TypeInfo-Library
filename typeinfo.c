@@ -1,23 +1,3 @@
-# Create-TypeInfo-StaticLibrary
-Create typeinfo static library with C. Using in CVM Project.
-
-## Example:
-
-### Input:
-
-```
-int int as md % cmp cov
-long@int lint as md % cmp cov
-long@long@int llint as md % cmp cov
-int8_t int8 as md % cmp cov
-int16_t int16 as md % cmp cov
-int32_t int32 as md % cmp cov
-int64_t int64 as md % cmp cov
-```
-
-### Output:
-
-```
 #include <stdint.h>
 #include <stdbool.h>
 typedef long int lint;
@@ -145,4 +125,3 @@ int8 cov_int64_int8(int64 x) { return (int8)x; }
 int16 cov_int64_int16(int64 x) { return (int16)x; }
 int32 cov_int64_int32(int64 x) { return (int32)x; }
 int64 cov_int64_int64(int64 x) { return (int64)x; }
-```

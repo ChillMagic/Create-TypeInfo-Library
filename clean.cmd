@@ -1,0 +1,1 @@
+del typeinfo.c typeinfo.o libtypeinfo.a

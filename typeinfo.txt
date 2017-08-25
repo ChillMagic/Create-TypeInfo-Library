@@ -1,0 +1,7 @@
+int int as md % cmp cov
+long@int lint as md % cmp cov
+long@long@int llint as md % cmp cov
+int8_t int8 as md % cmp cov
+int16_t int16 as md % cmp cov
+int32_t int32 as md % cmp cov
+int64_t int64 as md % cmp cov
