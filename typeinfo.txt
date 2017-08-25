@@ -1,7 +1,14 @@
-int int as md % cmp cov
-long@int lint as md % cmp cov
-long@long@int llint as md % cmp cov
-int8_t int8 as md % cmp cov
-int16_t int16 as md % cmp cov
-int32_t int32 as md % cmp cov
-int64_t int64 as md % cmp cov
+bool bool equ cov
+char char asi cmp equ cov
+
+int int as md % cmp equ cov
+long@int lint as md % cmp equ cov
+long@long@int llint as md % cmp equ cov
+int8_t int8 as md % cmp equ cov
+int16_t int16 as md % cmp equ cov
+int32_t int32 as md % cmp equ cov
+int64_t int64 as md % cmp equ cov
+
+float float as md cmp equ cov
+double double as md cmp equ cov
+long@double ldouble as md cmp equ cov

@@ -19,6 +19,9 @@ class Type
       when "as"
         string += "#{name} add_#{name}(#{name} a, #{name} b) { return a + b; }\n"
         string += "#{name} sub_#{name}(#{name} a, #{name} b) { return a - b; }\n"
+      when "asi"
+        string += "#{name} add_#{name}(#{name} a, int b) { return a + b; }\n"
+        string += "int sub_#{name}(#{name} a, #{name} b) { return a - b; }\n"
       when "md"
         string += "#{name} mul_#{name}(#{name} a, #{name} b) { return a * b; }\n"
         string += "#{name} div_#{name}(#{name} a, #{name} b) { return a / b; }\n"
@@ -29,6 +32,7 @@ class Type
         string += "bool cmp_le_#{name}(#{name} a, #{name} b) { return a >= b; }\n"
         string += "bool cmp_s_#{name}(#{name} a, #{name} b) { return a < b; }\n"
         string += "bool cmp_se_#{name}(#{name} a, #{name} b) { return a <= b; }\n"
+      when "equ"
         string += "bool cmp_e_#{name}(#{name} a, #{name} b) { return a == b; }\n"
       when "cov"
         types.each do |t|
@@ -41,13 +45,14 @@ class Type
   end
 end
 
-filename = ARGV[0]
+filename = ARGV[0] || "typeinfo.txt"
 
 types = Array.new
 
-File.open("#{filename}.txt","r") do |file|
+File.open("#{filename}","r") do |file|
   while line  = file.gets
     data = line.split(" ")
+    next if data.empty?
     types.push(Type.new(data[0], data[1], data[2, data.size]))
   end
 end
@@ -61,14 +66,16 @@ string = ""
 string += create_include("stdint.h")
 string += create_include("stdbool.h")
 
+string += "\n"
+
 types.each do |type|
   string += type.create_typedef
 end
+
+string += "\n"
 
 types.each do |type|
   string += type.create_funcs(types)
 end
 
 print(string)
-
-File.open("#{filename}.c", "w").puts(string)
