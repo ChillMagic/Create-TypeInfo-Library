@@ -1,1 +1,0 @@
-rm -f typeinfo.c typeinfo.o libtypeinfo.a

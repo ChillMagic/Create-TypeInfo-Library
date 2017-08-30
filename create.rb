@@ -12,40 +12,106 @@ class Type
       return ""
     end
   end
+  def get_declare(type, name, types)
+    if (type == "cov")
+      return types.collect do |t|
+        n = t.name
+        [ "#{n} cov_#{name}_#{n}(#{name} x)", "{ return (#{n})x; }" ]
+      end
+    else
+      return case (type)
+      when "as"
+        [
+          [ "#{name} add_#{name}(#{name} a, #{name} b)", "{ return a + b; }" ],
+          [ "#{name} sub_#{name}(#{name} a, #{name} b)", "{ return a - b; }" ],
+        ]
+      when "asi"
+        [
+          [ "#{name} add_#{name}(#{name} a, int b)", "{ return a + b; }" ],
+          [ "int sub_#{name}(#{name} a, #{name} b)", "{ return a - b; }" ],
+        ]
+      when "md"
+        [
+          [ "#{name} mul_#{name}(#{name} a, #{name} b)", "{ return a * b; }" ],
+          [ "#{name} div_#{name}(#{name} a, #{name} b)", "{ return a / b; }" ],
+        ]
+      when  "%"
+        [
+          [ "#{name} mod_#{name}(#{name} a, #{name} b)", "{ return a % b; }" ],
+        ]
+      when  "cmp"
+        [
+          [ "bool cmp_l_#{name}(#{name} a, #{name} b)", "{ return a > b; }" ],
+          [ "bool cmp_le_#{name}(#{name} a, #{name} b)", "{ return a >= b; }" ],
+          [ "bool cmp_s_#{name}(#{name} a, #{name} b)", "{ return a < b; }" ],
+          [ "bool cmp_se_#{name}(#{name} a, #{name} b)", "{ return a <= b; }" ],
+        ]
+      when "equ"
+        [
+          [ "bool cmp_e_#{name}(#{name} a, #{name} b)", "{ return a == b; }" ],
+        ]
+      end
+    end
+  end
   def create_funcs(types)
     string = ""
     @funcs.each do |func|
-      case func
-      when "as"
-        string += "#{name} add_#{name}(#{name} a, #{name} b) { return a + b; }\n"
-        string += "#{name} sub_#{name}(#{name} a, #{name} b) { return a - b; }\n"
-      when "asi"
-        string += "#{name} add_#{name}(#{name} a, int b) { return a + b; }\n"
-        string += "int sub_#{name}(#{name} a, #{name} b) { return a - b; }\n"
-      when "md"
-        string += "#{name} mul_#{name}(#{name} a, #{name} b) { return a * b; }\n"
-        string += "#{name} div_#{name}(#{name} a, #{name} b) { return a / b; }\n"
-      when "%"
-        string += "#{name} mod_#{name}(#{name} a, #{name} b) { return a % b; }\n"
-      when "cmp"
-        string += "bool cmp_l_#{name}(#{name} a, #{name} b) { return a > b; }\n"
-        string += "bool cmp_le_#{name}(#{name} a, #{name} b) { return a >= b; }\n"
-        string += "bool cmp_s_#{name}(#{name} a, #{name} b) { return a < b; }\n"
-        string += "bool cmp_se_#{name}(#{name} a, #{name} b) { return a <= b; }\n"
-      when "equ"
-        string += "bool cmp_e_#{name}(#{name} a, #{name} b) { return a == b; }\n"
-      when "cov"
-        types.each do |t|
-          n = t.name
-          string += "#{n} cov_#{name}_#{n}(#{name} x) { return (#{n})x; }\n"
-        end
-      end
+      get_declare(func, name, types).each { |t| string += t[0] + " " + t[1] + "\n" }
+    end
+    return string
+  end
+  def create_declares(types)
+    string = ""
+    @funcs.each do |func|
+      get_declare(func, name, types).each { |t| string += t[0] + ";\n" }
     end
     return string
   end
 end
 
+def create_include(name)
+  return "#include <#{name}>\n"
+end
+
+def create_local_include(name)
+  return "#include \"#{name}\"\n"
+end
+
+def create_header(types)
+  string = ""
+  string += create_include("stdint.h")
+  string += create_include("stdbool.h")
+  string += "\n"
+  types.each do |type|
+    string += type.create_typedef
+  end
+  string += "\n"
+  types.each do |type|
+    string += type.create_declares(types)
+  end
+  string += "\n"
+
+  return string
+end
+
+def create_source(types)
+  string = ""
+  string += create_local_include($outputfile_inc)
+  string += "\n"
+  types.each do |type|
+    string += type.create_funcs(types)
+  end
+  string += "\n"
+  
+  return string
+end
+
 filename = ARGV[0] || "typeinfo.txt"
+$outputfile_inc = (ARGV[1] || filename) + ".h"
+$outputfile_src = (ARGV[1] || filename) + ".c"
+direction = ARGV[2] || "."
+
+# Load Types
 
 types = Array.new
 
@@ -57,25 +123,7 @@ File.open("#{filename}","r") do |file|
   end
 end
 
-def create_include(name)
-  return "#include <#{name}>\n"
-end
+# Create
 
-string = ""
-
-string += create_include("stdint.h")
-string += create_include("stdbool.h")
-
-string += "\n"
-
-types.each do |type|
-  string += type.create_typedef
-end
-
-string += "\n"
-
-types.each do |type|
-  string += type.create_funcs(types)
-end
-
-print(string)
+File.open(direction + "/" + $outputfile_inc, "w").print(create_header(types))
+File.open(direction + "/" + $outputfile_src, "w").print(create_source(types))
