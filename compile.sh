@@ -23,5 +23,7 @@ build-s/test
 echo
 
 echo ====== Testing Dynamic Library ======
+export LD_LIBRARY_PATH=./build-d:$LD_LIBRARY_PATH
 build-d/test
+unset LD_LIBRARY_PATH
 echo
