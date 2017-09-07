@@ -1,7 +1,7 @@
 mkdir build-s
 mkdir build-d
-ruby create.rb typeinfo.txt typeinfo build-s
-ruby create.rb typeinfo.txt typeinfo build-d
+python create.py typeinfo.txt typeinfo build-s
+python create.py typeinfo.txt typeinfo build-d
 
 cd build-s
 cp ../test.c .

@@ -12,9 +12,10 @@ class Type
       return ""
     end
   end
-  def get_declare(type, name, types)
+  def get_declare(type, typelist)
+    name = @name
     if (type == "cov")
-      return types.collect do |t|
+      return typelist.collect do |t|
         n = t.name
         [ "#{n} cov_#{name}_#{n}(#{name} x)", "{ return (#{n})x; }" ]
       end
@@ -41,29 +42,30 @@ class Type
         ]
       when  "cmp"
         [
-          [ "bool cmp_l_#{name}(#{name} a, #{name} b)", "{ return a > b; }" ],
-          [ "bool cmp_le_#{name}(#{name} a, #{name} b)", "{ return a >= b; }" ],
-          [ "bool cmp_s_#{name}(#{name} a, #{name} b)", "{ return a < b; }" ],
-          [ "bool cmp_se_#{name}(#{name} a, #{name} b)", "{ return a <= b; }" ],
+          [ "bool cmp_lt_#{name}(#{name} a, #{name} b)", "{ return a < b; }" ],
+          [ "bool cmp_le_#{name}(#{name} a, #{name} b)", "{ return a <= b; }" ],
+          [ "bool cmp_ge_#{name}(#{name} a, #{name} b)", "{ return a >= b; }" ],
+          [ "bool cmp_gt_#{name}(#{name} a, #{name} b)", "{ return a > b; }" ],
         ]
       when "equ"
         [
-          [ "bool cmp_e_#{name}(#{name} a, #{name} b)", "{ return a == b; }" ],
+          [ "bool cmp_eq_#{name}(#{name} a, #{name} b)", "{ return a == b; }" ],
+          [ "bool cmp_ne_#{name}(#{name} a, #{name} b)", "{ return a != b; }" ],
         ]
       end
     end
   end
-  def create_funcs(types)
+  def create_funcs(typelist)
     string = ""
     @funcs.each do |func|
-      get_declare(func, name, types).each { |t| string += t[0] + " " + t[1] + "\n" }
+      get_declare(func, typelist).each { |t| string += t[0] + " " + t[1] + "\n" }
     end
     return string
   end
-  def create_declares(types)
+  def create_declares(typelist)
     string = ""
     @funcs.each do |func|
-      get_declare(func, name, types).each { |t| string += t[0] + ";\n" }
+      get_declare(func, typelist).each { |t| string += t[0] + ";\n" }
     end
     return string
   end
@@ -115,8 +117,8 @@ direction = ARGV[2] || "."
 
 types = Array.new
 
-File.open("#{filename}","r") do |file|
-  while line  = file.gets
+File.open(filename, "r") do |file|
+  while line = file.gets
     data = line.split(" ")
     next if data.empty?
     types.push(Type.new(data[0], data[1], data[2, data.size]))
